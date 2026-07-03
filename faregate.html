@@ -486,9 +486,33 @@
       populateArrayOptions(this.value);
     });
 
-    // Camera button
+    // Camera button — open camera and auto-save photo to Downloads/Gallery
     document.getElementById("cameraBtn").addEventListener("click", () => {
       document.getElementById("cameraInput").click();
+    });
+
+    document.getElementById("cameraInput").addEventListener("change", function() {
+      const file = this.files[0];
+      if (!file) return;
+
+      // Build a filename using station + timestamp
+      const stEl    = document.getElementById("station");
+      const station = stEl.options[stEl.selectedIndex]?.text.replace(/[^a-zA-Z0-9]/g,"_").replace(/^_+|_+$/g,"") || "photo";
+      const now     = new Date();
+      const ts      = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}_${String(now.getHours()).padStart(2,"0")}${String(now.getMinutes()).padStart(2,"0")}`;
+      const fileName = `${station}_${ts}.jpg`;
+
+      const url = URL.createObjectURL(file);
+      const a   = document.createElement("a");
+      a.href     = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showToast("📷 Photo saved to Downloads!");
+
+      // Reset input so same photo can be retaken if needed
+      this.value = "";
     });
 
     // Save button — screenshot the card and download as image
