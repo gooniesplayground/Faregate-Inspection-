@@ -717,10 +717,12 @@
         if (!e.target.closest(".admin-row-head")) return;      // only the header lifts
         if (e.target.closest("button, input, select")) return; // not from controls
         startY = e.clientY;
+        const pointerId = e.pointerId;
         pressTimer = setTimeout(() => {
           dragging = row;
           startIndex = [...listEl.children].indexOf(row);
           row.classList.add("dragging");
+          try { row.setPointerCapture(pointerId); } catch (err) { /* pointer already gone */ }
           if (navigator.vibrate) navigator.vibrate(30);
         }, 400);
       });
