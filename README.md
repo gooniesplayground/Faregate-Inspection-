@@ -1,47 +1,3 @@
-# Faregate Inspection
-
-A simple web app for LA Metro faregate inspections. Techs fill out the
-form on their phone and save it as an image. Admins can edit the tech,
-station, array, and checklist lists right from the app.
-
-**The app runs entirely from this GitHub repository** — GitHub hosts the
-website (free) and stores the app's data. No servers, no accounts for
-techs, nothing to install.
-
----
-
-## For techs: using the app
-
-1. Open the app link in your phone's browser (ask your lead for the link —
-   it looks like `https://SOMENAME.github.io/REPO-NAME/faregate`).
-2. Bookmark it or add it to your home screen.
-3. Fill out the form and tap **Save** — a picture of the completed form
-   goes to your Downloads.
-
-That's it. Techs never need a GitHub account.
-
----
-
-## For admins: editing the lists
-
-1. Open the app and tap the **Faregate Inspection** title **5 times
-   quickly**. The admin panel opens.
-2. Add ➕, edit ✏️, or delete 🗑 techs, stations, each station's arrays,
-   and the checklist items.
-3. To reorder a list: **press and hold** an item for half a second, then
-   drag it up or down.
-4. Changes show up on *your* device right away. When you're happy, tap
-   **Publish** — within about a minute, everyone gets the update the next
-   time they open the app.
-5. Made a mess? Tap **Discard changes** to go back to the last published
-   version.
-
-Publishing requires a one-time token setup — see
-[Step 5](#step-5-create-your-access-token) below. Without it, the admin
-panel opens but Publish stays disabled.
-
----
-
 ## Setting up your own copy (from scratch)
 
 Follow these steps once and you'll have your own copy of the app, running
@@ -150,3 +106,23 @@ from your phone whenever things change.
 - **If two admins publish at the same time**, the app detects it, refuses
   to overwrite the other person's change, and asks you to review and
   publish again.
+
+---
+
+## For admins: editing the lists
+
+1. Open the app and tap the **Faregate Inspection** title **5 times
+   quickly**. The admin panel opens.
+2. Add ➕, edit ✏️, or delete 🗑 techs, stations, each station's arrays,
+   and the checklist items.
+3. To reorder a list: **press and hold** an item for half a second, then
+   drag it up or down.
+4. Changes show up on *your* device right away. When you're happy, tap
+   **Publish** — within about a minute, everyone gets the update the next
+   time they open the app.
+5. Made a mess? Tap **Discard changes** to go back to the last published
+   version.
+
+Publishing requires a one-time token setup — see
+[Step 5](#step-5-create-your-access-token) above. Without it, the admin
+panel opens but Publish stays disabled.
