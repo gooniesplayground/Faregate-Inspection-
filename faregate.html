@@ -526,7 +526,159 @@
         list.appendChild(row);
       });
     }
-    function renderStationAdmin(){} // implemented in Task 5
+    const LINE_EMOJIS = ["🔴","🟣","🔵","🟢","🟡","🟠","⚪","⚫"];
+    let expandedStationId = null;
+
+    function renderStationAdmin(){
+      const list = document.getElementById("stationList");
+      list.innerHTML = "";
+      localData.stations.forEach((s, i) => {
+        const row  = document.createElement("div");
+        row.className = "admin-row";
+        const head = document.createElement("div");
+        head.className = "admin-row-head";
+
+        const name = document.createElement("span");
+        name.className = "admin-row-name";
+        name.textContent = `${s.line} ${s.name}`;
+
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.textContent = expandedStationId === s.id ? "▲" : "▼";
+        const doToggle = () => {
+          expandedStationId = expandedStationId === s.id ? null : s.id;
+          renderStationAdmin();
+        };
+        toggle.addEventListener("click", doToggle);
+        name.addEventListener("click", doToggle);
+
+        head.append(name, toggle);
+        row.appendChild(head);
+
+        if (expandedStationId === s.id) row.appendChild(buildStationDetail(s, i));
+        list.appendChild(row);
+      });
+    }
+
+    function buildStationDetail(s, i){
+      const detail = document.createElement("div");
+      detail.className = "station-detail";
+
+      // Name / ID / line editors
+      const nameWrap = document.createElement("div");
+      nameWrap.innerHTML = "<label>Name</label>";
+      const nameIn = document.createElement("input");
+      nameIn.value = s.name;
+      nameIn.addEventListener("change", () => {
+        if (nameIn.value.trim()){ s.name = nameIn.value.trim(); markChanged(); }
+      });
+      nameWrap.appendChild(nameIn);
+
+      const idWrap = document.createElement("div");
+      idWrap.innerHTML = "<label>Station ID</label>";
+      const idIn = document.createElement("input");
+      idIn.value = s.id;
+      idIn.addEventListener("change", () => {
+        const v = idIn.value.trim();
+        if (!v){ idIn.value = s.id; return; }
+        if (localData.stations.some(o => o !== s && o.id === v)){
+          showToast("❌ Station ID already in use");
+          idIn.value = s.id;
+          return;
+        }
+        if (expandedStationId === s.id) expandedStationId = v;
+        s.id = v;
+        markChanged();
+      });
+      idWrap.appendChild(idIn);
+
+      const lineWrap = document.createElement("div");
+      lineWrap.innerHTML = "<label>Line</label>";
+      const lineSel = document.createElement("select");
+      LINE_EMOJIS.forEach(e => {
+        const o = document.createElement("option");
+        o.textContent = e;
+        lineSel.appendChild(o);
+      });
+      lineSel.value = s.line;
+      lineSel.addEventListener("change", () => { s.line = lineSel.value; markChanged(); });
+      lineWrap.appendChild(lineSel);
+
+      detail.append(nameWrap, idWrap, lineWrap);
+
+      // Arrays list
+      const arrLabel = document.createElement("label");
+      arrLabel.textContent = "Arrays";
+      detail.appendChild(arrLabel);
+
+      const arrList = document.createElement("div");
+      arrList.className = "admin-list";
+      arrList.id = `arrayList-${s.id}`;
+      s.arrays.forEach((a, ai) => {
+        const aRow  = document.createElement("div");
+        aRow.className = "admin-row";
+        const aHead = document.createElement("div");
+        aHead.className = "admin-row-head";
+
+        const aName = document.createElement("span");
+        aName.className = "admin-row-name";
+        aName.textContent = a;
+
+        const aEdit = document.createElement("button");
+        aEdit.type = "button";
+        aEdit.textContent = "✏️";
+        aEdit.addEventListener("click", () => {
+          const v = prompt("Edit array name", a);
+          if (v && v.trim()){ s.arrays[ai] = v.trim(); markChanged(); }
+        });
+
+        const aDel = document.createElement("button");
+        aDel.type = "button";
+        aDel.textContent = "🗑";
+        aDel.addEventListener("click", () => {
+          if (confirm(`Delete array ${a}?`)){ s.arrays.splice(ai, 1); markChanged(); }
+        });
+
+        aHead.append(aName, aEdit, aDel);
+        aRow.appendChild(aHead);
+        arrList.appendChild(aRow);
+      });
+      detail.appendChild(arrList);
+
+      // Add array
+      const addWrap = document.createElement("div");
+      addWrap.className = "admin-add";
+      const addIn = document.createElement("input");
+      addIn.placeholder = "New array name";
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.className = "btn btn-primary";
+      addBtn.textContent = "Add";
+      addBtn.addEventListener("click", () => {
+        const v = addIn.value.trim();
+        if (!v) return;
+        s.arrays.push(v);
+        markChanged();
+      });
+      addWrap.append(addIn, addBtn);
+      detail.appendChild(addWrap);
+
+      // Delete station
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "🗑 Delete station";
+      delBtn.addEventListener("click", () => {
+        if (confirm(`Delete ${s.name} and its ${s.arrays.length} array(s)?`)){
+          localData.stations.splice(i, 1);
+          expandedStationId = null;
+          markChanged();
+        }
+      });
+      detail.appendChild(delBtn);
+
+      return detail;
+    }
 
     function updateAdminChrome(){
       document.getElementById("adminDirty").hidden = !isDirty();
@@ -571,6 +723,21 @@
       if (!v) return;
       localData.techs.push(v);
       input.value = "";
+      markChanged();
+    });
+
+    document.getElementById("stAdd").addEventListener("click", () => {
+      const name = document.getElementById("stNewName").value.trim();
+      const id   = document.getElementById("stNewId").value.trim();
+      const line = document.getElementById("stNewLine").value;
+      if (!name || !id){ showToast("Name and ID required"); return; }
+      if (localData.stations.some(s => s.id === id)){
+        showToast("❌ Station ID already in use");
+        return;
+      }
+      localData.stations.push({ id, line, name, arrays: [] });
+      document.getElementById("stNewName").value = "";
+      document.getElementById("stNewId").value = "";
       markChanged();
     });
 
