@@ -771,6 +771,106 @@
       markChanged();
     });
 
+    // ----- GitHub publishing -----
+    const REPO_API = "https://api.github.com/repos/gooniesplayground/Faregate-Inspection-/contents/data.json";
+
+    function ghHeaders(token){
+      return { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" };
+    }
+
+    function b64EncodeUtf8(str){
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      bytes.forEach(b => bin += String.fromCharCode(b));
+      return btoa(bin);
+    }
+
+    async function testConnection(){
+      const token = localStorage.getItem(LS_TOKEN);
+      if (!token){ showToast("Save a token first"); return; }
+      try {
+        const res = await fetch(REPO_API, { headers: ghHeaders(token) });
+        if (res.ok) showToast("✅ Token works");
+        else if (res.status === 401 || res.status === 403) showToast("❌ Token invalid or expired");
+        else showToast(`❌ GitHub says ${res.status}`);
+      } catch (e) {
+        showToast("❌ No connection");
+      }
+    }
+
+    async function publishData(){
+      const token = localStorage.getItem(LS_TOKEN);
+      if (!token){ showToast("Save a token in Settings first"); return; }
+      const btn = document.getElementById("publishBtn");
+      btn.disabled = true;
+      try {
+        const head = await fetch(`${REPO_API}?t=${Date.now()}`, { headers: ghHeaders(token) });
+        if (head.status === 401 || head.status === 403){ showToast("❌ Token invalid or expired — check Settings"); return; }
+        if (!head.ok){ showToast(`❌ GitHub says ${head.status}`); return; }
+        const sha = (await head.json()).sha;
+
+        const res = await fetch(REPO_API, {
+          method: "PUT",
+          headers: ghHeaders(token),
+          body: JSON.stringify({
+            message: "Update data.json via admin mode",
+            content: b64EncodeUtf8(JSON.stringify(localData, null, 2) + "\n"),
+            sha
+          })
+        });
+
+        if (res.ok){
+          remoteData = deepCopy(localData);
+          saveStored(LS_REMOTE, remoteData);
+          renderAdmin();
+          showToast("✅ Published! Live for everyone in ~1 minute");
+        } else if (res.status === 409){
+          await fetchRemoteData();
+          renderAdmin();
+          showToast("⚠️ Someone else published first — review and publish again");
+        } else if (res.status === 401 || res.status === 403){
+          showToast("❌ Token invalid or expired — check Settings");
+        } else {
+          showToast(`❌ Publish failed (${res.status})`);
+        }
+      } catch (e) {
+        showToast("❌ No connection — changes kept locally");
+      } finally {
+        btn.disabled = false;
+        updateAdminChrome();
+      }
+    }
+
+    document.getElementById("tokenSave").addEventListener("click", () => {
+      const input = document.getElementById("tokenInput");
+      const v = input.value.trim();
+      if (!v){ showToast("Paste a token first"); return; }
+      localStorage.setItem(LS_TOKEN, v);
+      input.value = "";
+      updateAdminChrome();
+      showToast("🔑 Token saved on this device");
+    });
+
+    document.getElementById("tokenForget").addEventListener("click", () => {
+      localStorage.removeItem(LS_TOKEN);
+      updateAdminChrome();
+      showToast("Token forgotten");
+    });
+
+    document.getElementById("tokenTest").addEventListener("click", testConnection);
+    document.getElementById("publishBtn").addEventListener("click", publishData);
+
+    document.getElementById("discardBtn").addEventListener("click", () => {
+      if (!isDirty()){ showToast("No unpublished changes"); return; }
+      if (confirm("Discard all unpublished changes?")){
+        localData = deepCopy(remoteData);
+        saveStored(LS_LOCAL, localData);
+        renderAll();
+        renderAdmin();
+        showToast("Changes discarded");
+      }
+    });
+
     function openAdmin(){
       document.getElementById("adminPanel").hidden = false;
       renderAdmin();
