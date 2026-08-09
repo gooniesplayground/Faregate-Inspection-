@@ -16,8 +16,7 @@
     "Rafael T (61287)",
     "Revic C (58631)",
     "Roger D (60620)",
-    "Sal A (00000)",
-    "Test one"
+    "Sal A (00000)"
   ],
   "stations": [
     {
@@ -247,14 +246,6 @@
       "arrays": [
         "East 300-305",
         "West 307-534"
-      ]
-    },
-    {
-      "id": "123384",
-      "line": "🟣",
-      "name": "Test 2 station",
-      "arrays": [
-        "Test array one name"
       ]
     }
   ]
