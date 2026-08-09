@@ -785,7 +785,18 @@
     });
 
     // ----- GitHub publishing -----
-    const REPO_API = "https://api.github.com/repos/gooniesplayground/Faregate-Inspection-/contents/data.json";
+    // On GitHub Pages (https://<owner>.github.io/<repo>/...) the owner and repo
+    // are derived from the URL, so any fork publishes to its own repo without
+    // editing this file. The hardcoded fallback covers local testing.
+    function getRepoApi(host = location.hostname, path = location.pathname){
+      const seg = path.split("/").filter(Boolean);
+      if (host.endsWith(".github.io") && seg.length > 0){
+        const owner = host.slice(0, -".github.io".length);
+        return `https://api.github.com/repos/${owner}/${seg[0]}/contents/data.json`;
+      }
+      return "https://api.github.com/repos/gooniesplayground/Faregate-Inspection-/contents/data.json";
+    }
+    const REPO_API = getRepoApi();
 
     function ghHeaders(token){
       return { "Authorization": `Bearer ${token}`, "Accept": "application/vnd.github+json" };
