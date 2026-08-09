@@ -493,7 +493,39 @@
     function renderAll(){ renderTechOptions(); renderStationOptions(); }
 
     // ----- Admin mode -----
-    function renderTechAdmin(){}    // implemented in Task 4
+    function renderTechAdmin(){
+      const list = document.getElementById("techList");
+      list.innerHTML = "";
+      localData.techs.forEach((t, i) => {
+        const row  = document.createElement("div");
+        row.className = "admin-row";
+        const head = document.createElement("div");
+        head.className = "admin-row-head";
+
+        const name = document.createElement("span");
+        name.className = "admin-row-name";
+        name.textContent = t;
+
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "✏️";
+        edit.addEventListener("click", () => {
+          const v = prompt("Edit tech name", t);
+          if (v && v.trim()){ localData.techs[i] = v.trim(); markChanged(); }
+        });
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "🗑";
+        del.addEventListener("click", () => {
+          if (confirm(`Delete ${t}?`)){ localData.techs.splice(i, 1); markChanged(); }
+        });
+
+        head.append(name, edit, del);
+        row.appendChild(head);
+        list.appendChild(row);
+      });
+    }
     function renderStationAdmin(){} // implemented in Task 5
 
     function updateAdminChrome(){
@@ -531,6 +563,15 @@
       clearTimeout(titleTapTimer);
       titleTapTimer = setTimeout(() => { titleTaps = 0; }, 3000);
       if (titleTaps >= 5){ titleTaps = 0; openAdmin(); }
+    });
+
+    document.getElementById("techAdd").addEventListener("click", () => {
+      const input = document.getElementById("techNew");
+      const v = input.value.trim();
+      if (!v) return;
+      localData.techs.push(v);
+      input.value = "";
+      markChanged();
     });
 
     async function fetchRemoteData(){
