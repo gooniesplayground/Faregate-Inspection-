@@ -1,4 +1,4 @@
-## Setting up your own copy (from scratch)
+## Setup
 
 Follow these steps once and you'll have your own copy of the app, running
 under your own GitHub account, fully under your control. Takes about
