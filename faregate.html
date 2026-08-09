@@ -315,19 +315,7 @@
 
       <div class="section checklist-box">
         <div class="checklist-title" id="checklistTitle">☑ Checklist (tap to select all)</div>
-        <div class="checklist">
-          <label class="check-item"><input type="checkbox" /> <span>Login Completed</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>TAPs</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>QR Scans</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Barrier alignment</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Loose Bolts Check</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Barrier speed</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Corrosion Check</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Customer Displays</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Status Displays</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Decals</span></label>
-          <label class="check-item"><input type="checkbox" /> <span>Pics (upload to chat)</span></label>
-        </div>
+        <div class="checklist"></div>
       </div>
 
       <div class="field section">
@@ -376,6 +364,15 @@
       </section>
 
       <section>
+        <h3>Checklist</h3>
+        <div class="admin-list" id="checkList"></div>
+        <div class="admin-add">
+          <input id="checkNew" placeholder="New checklist item" />
+          <button type="button" class="btn btn-primary" id="checkAdd">Add</button>
+        </div>
+      </section>
+
+      <section>
         <h3>Settings</h3>
         <div class="admin-add">
           <input id="tokenInput" type="password" placeholder="GitHub token" autocomplete="off" />
@@ -416,6 +413,19 @@
         "Revic C (58631)",
         "Roger D (60620)",
         "Sal A (00000)"
+      ],
+      "checklist": [
+        "Login Completed",
+        "TAPs",
+        "QR Scans",
+        "Barrier alignment",
+        "Loose Bolts Check",
+        "Barrier speed",
+        "Corrosion Check",
+        "Customer Displays",
+        "Status Displays",
+        "Decals",
+        "Pics (upload to chat)"
       ],
       "stations": [
         { "id": "120", "line": "🔴", "name": "North Hollywood", "arrays": ["West 154-158", "East 161-166"] },
@@ -462,10 +472,19 @@
 
     function isValidData(d){ return !!d && Array.isArray(d.techs) && Array.isArray(d.stations); }
 
+    function normalizeData(d){
+      if (!Array.isArray(d.checklist) || d.checklist.length === 0){
+        d.checklist = deepCopy(DEFAULT_DATA.checklist);
+      }
+      return d;
+    }
+
     let localData  = loadStored(LS_LOCAL);
     if (!isValidData(localData)) localData = deepCopy(DEFAULT_DATA);
+    localData = normalizeData(localData);
     let remoteData = loadStored(LS_REMOTE);
     if (!isValidData(remoteData)) remoteData = deepCopy(DEFAULT_DATA);
+    remoteData = normalizeData(remoteData);
 
     function isDirty(){ return JSON.stringify(localData) !== JSON.stringify(remoteData); }
 
@@ -497,7 +516,22 @@
       populateArrayOptions(sel.value);
     }
 
-    function renderAll(){ renderTechOptions(); renderStationOptions(); }
+    function renderChecklist(){
+      const box = document.querySelector(".checklist");
+      box.innerHTML = "";
+      localData.checklist.forEach(item => {
+        const label = document.createElement("label");
+        label.className = "check-item";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        const span = document.createElement("span");
+        span.textContent = item;
+        label.append(cb, " ", span);
+        box.appendChild(label);
+      });
+    }
+
+    function renderAll(){ renderTechOptions(); renderStationOptions(); renderChecklist(); }
 
     // ----- Admin mode -----
     function renderTechAdmin(){
@@ -528,6 +562,45 @@
         del.setAttribute("aria-label", "Delete " + t);
         del.addEventListener("click", () => {
           if (confirm(`Delete ${t}?`)){ localData.techs.splice(i, 1); markChanged(); }
+        });
+
+        head.append(name, edit, del);
+        row.appendChild(head);
+        list.appendChild(row);
+      });
+    }
+    function renderChecklistAdmin(){
+      const list = document.getElementById("checkList");
+      list.innerHTML = "";
+      localData.checklist.forEach((item, i) => {
+        const row  = document.createElement("div");
+        row.className = "admin-row";
+        const head = document.createElement("div");
+        head.className = "admin-row-head";
+
+        const name = document.createElement("span");
+        name.className = "admin-row-name";
+        name.textContent = item;
+
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.textContent = "✏️";
+        edit.setAttribute("aria-label", "Edit " + item);
+        edit.addEventListener("click", () => {
+          const v = prompt("Edit checklist item", item);
+          if (v && v.trim()){ localData.checklist[i] = v.trim(); markChanged(); }
+        });
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.textContent = "🗑";
+        del.setAttribute("aria-label", "Delete " + item);
+        del.addEventListener("click", () => {
+          if (localData.checklist.length <= 1){
+            showToast("At least one checklist item is required");
+            return;
+          }
+          if (confirm(`Delete ${item}?`)){ localData.checklist.splice(i, 1); markChanged(); }
         });
 
         head.append(name, edit, del);
@@ -705,6 +778,7 @@
     function renderAdmin(){
       renderTechAdmin();
       renderStationAdmin();
+      renderChecklistAdmin();
       updateAdminChrome();
     }
 
@@ -782,6 +856,11 @@
 
     makeReorderable(document.getElementById("stationList"), (from, to) => {
       moveItem(localData.stations, from, to);
+      markChanged();
+    });
+
+    makeReorderable(document.getElementById("checkList"), (from, to) => {
+      moveItem(localData.checklist, from, to);
       markChanged();
     });
 
@@ -953,6 +1032,15 @@
       markChanged();
     });
 
+    document.getElementById("checkAdd").addEventListener("click", () => {
+      const input = document.getElementById("checkNew");
+      const v = input.value.trim();
+      if (!v) return;
+      localData.checklist.push(v);
+      input.value = "";
+      markChanged();
+    });
+
     document.getElementById("stAdd").addEventListener("click", () => {
       const name = document.getElementById("stNewName").value.trim();
       const id   = document.getElementById("stNewId").value.trim();
@@ -974,6 +1062,7 @@
         if (!res.ok) return;
         const data = await res.json();
         if (!isValidData(data)) return;
+        normalizeData(data);
         const wasClean = !isDirty();
         remoteData = data;
         if (wasClean) localData = deepCopy(data);

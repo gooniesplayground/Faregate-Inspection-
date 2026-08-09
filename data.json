@@ -18,6 +18,19 @@
     "Roger D (60620)",
     "Sal A (00000)"
   ],
+  "checklist": [
+    "Login Completed",
+    "TAPs",
+    "QR Scans",
+    "Barrier alignment",
+    "Loose Bolts Check",
+    "Barrier speed",
+    "Corrosion Check",
+    "Customer Displays",
+    "Status Displays",
+    "Decals",
+    "Pics (upload to chat)"
+  ],
   "stations": [
     {
       "id": "120",
