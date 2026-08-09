@@ -73,6 +73,8 @@ gesture can look but not publish.
   - manage that station's arrays (add / edit / delete / reorder),
   - delete the station (with its arrays).
   - "Add station" appends a new station (name + ID + line required).
+  - Station IDs must be unique; adding or editing to a duplicate ID is
+    rejected with a toast.
 - **Settings** — paste-field for the GitHub token (stored only in that
   device's `localStorage`, never in the repo), "Test connection" button,
   and a "Forget token" button.
