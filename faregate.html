@@ -459,8 +459,12 @@
 
     function saveStored(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
 
-    let localData  = loadStored(LS_LOCAL)  || deepCopy(DEFAULT_DATA);
-    let remoteData = loadStored(LS_REMOTE) || deepCopy(DEFAULT_DATA);
+    function isValidData(d){ return !!d && Array.isArray(d.techs) && Array.isArray(d.stations); }
+
+    let localData  = loadStored(LS_LOCAL);
+    if (!isValidData(localData)) localData = deepCopy(DEFAULT_DATA);
+    let remoteData = loadStored(LS_REMOTE);
+    if (!isValidData(remoteData)) remoteData = deepCopy(DEFAULT_DATA);
 
     function isDirty(){ return JSON.stringify(localData) !== JSON.stringify(remoteData); }
 
@@ -474,6 +478,7 @@
         sel.appendChild(o);
       });
       sel.value = prev;
+      if (sel.value !== prev) sel.value = "";
     }
 
     function renderStationOptions(){
@@ -487,6 +492,7 @@
         sel.appendChild(o);
       });
       sel.value = prev;
+      if (sel.value !== prev) sel.value = "";
       populateArrayOptions(sel.value);
     }
 
@@ -509,6 +515,7 @@
         const edit = document.createElement("button");
         edit.type = "button";
         edit.textContent = "✏️";
+        edit.setAttribute("aria-label", "Edit " + t);
         edit.addEventListener("click", () => {
           const v = prompt("Edit tech name", t);
           if (v && v.trim()){ localData.techs[i] = v.trim(); markChanged(); }
@@ -517,6 +524,7 @@
         const del = document.createElement("button");
         del.type = "button";
         del.textContent = "🗑";
+        del.setAttribute("aria-label", "Delete " + t);
         del.addEventListener("click", () => {
           if (confirm(`Delete ${t}?`)){ localData.techs.splice(i, 1); markChanged(); }
         });
@@ -545,6 +553,7 @@
         const toggle = document.createElement("button");
         toggle.type = "button";
         toggle.textContent = expandedStationId === s.id ? "▲" : "▼";
+        toggle.setAttribute("aria-label", (expandedStationId === s.id ? "Collapse " : "Expand ") + s.name);
         const doToggle = () => {
           expandedStationId = expandedStationId === s.id ? null : s.id;
           renderStationAdmin();
@@ -627,6 +636,7 @@
         const aEdit = document.createElement("button");
         aEdit.type = "button";
         aEdit.textContent = "✏️";
+        aEdit.setAttribute("aria-label", "Edit array " + a);
         aEdit.addEventListener("click", () => {
           const v = prompt("Edit array name", a);
           if (v && v.trim()){ s.arrays[ai] = v.trim(); markChanged(); }
@@ -635,6 +645,7 @@
         const aDel = document.createElement("button");
         aDel.type = "button";
         aDel.textContent = "🗑";
+        aDel.setAttribute("aria-label", "Delete array " + a);
         aDel.addEventListener("click", () => {
           if (confirm(`Delete array ${a}?`)){ s.arrays.splice(ai, 1); markChanged(); }
         });
@@ -712,6 +723,7 @@
       let pressTimer = null, dragging = null, startIndex = -1, startY = 0;
 
       listEl.addEventListener("pointerdown", e => {
+        if (dragging || pressTimer) return;
         const row = e.target.closest(".admin-row");
         if (!row || row.parentElement !== listEl) return;      // ignore rows of nested lists
         if (!e.target.closest(".admin-row-head")) return;      // only the header lifts
@@ -729,7 +741,7 @@
 
       listEl.addEventListener("pointermove", e => {
         if (!dragging){
-          if (Math.abs(e.clientY - startY) > 10) clearTimeout(pressTimer); // it's a scroll
+          if (Math.abs(e.clientY - startY) > 10) { clearTimeout(pressTimer); pressTimer = null; } // it's a scroll
           return;
         }
         const others = [...listEl.children].filter(r => r !== dragging);
@@ -750,6 +762,7 @@
 
       const finish = () => {
         clearTimeout(pressTimer);
+        pressTimer = null;
         if (!dragging) return;
         dragging.classList.remove("dragging");
         const endIndex = [...listEl.children].indexOf(dragging);
@@ -785,6 +798,12 @@
       return btoa(bin);
     }
 
+    function b64DecodeUtf8(b64){
+      const bin = atob(b64.replace(/\s/g, ""));
+      const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
     async function testConnection(){
       const token = localStorage.getItem(LS_TOKEN);
       if (!token){ showToast("Save a token first"); return; }
@@ -807,7 +826,21 @@
         const head = await fetch(`${REPO_API}?t=${Date.now()}`, { headers: ghHeaders(token) });
         if (head.status === 401 || head.status === 403){ showToast("❌ Token invalid or expired — check Settings"); return; }
         if (!head.ok){ showToast(`❌ GitHub says ${head.status}`); return; }
-        const sha = (await head.json()).sha;
+        const headBody = await head.json();
+        const sha = headBody.sha;
+        let repoData = null;
+        try { repoData = JSON.parse(b64DecodeUtf8(headBody.content)); }
+        catch (e) { repoData = null; } // repo file corrupt — proceed with publish rather than dead-lock
+
+        if (repoData && JSON.stringify(repoData) !== JSON.stringify(remoteData)){
+          // Someone else published since this device last synced — don't clobber it.
+          remoteData = repoData;
+          saveStored(LS_REMOTE, remoteData);
+          renderAll();
+          renderAdmin();
+          showToast("⚠️ Someone else published first — review and publish again");
+          return;
+        }
 
         const res = await fetch(REPO_API, {
           method: "PUT",
@@ -825,8 +858,16 @@
           renderAdmin();
           showToast("✅ Published! Live for everyone in ~1 minute");
         } else if (res.status === 409){
-          await fetchRemoteData();
-          renderAdmin();
+          const recheck = await fetch(`${REPO_API}?t=${Date.now()}`, { headers: ghHeaders(token) });
+          if (recheck.ok){
+            const recheckBody = await recheck.json();
+            try {
+              remoteData = JSON.parse(b64DecodeUtf8(recheckBody.content));
+              saveStored(LS_REMOTE, remoteData);
+              renderAll();
+              renderAdmin();
+            } catch (e) { /* repo file corrupt — leave remoteData as-is */ }
+          }
           showToast("⚠️ Someone else published first — review and publish again");
         } else if (res.status === 401 || res.status === 403){
           showToast("❌ Token invalid or expired — check Settings");
@@ -920,13 +961,14 @@
         const res = await fetch(`data.json?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) return;
         const data = await res.json();
-        if (!data || !Array.isArray(data.techs) || !Array.isArray(data.stations)) return;
+        if (!isValidData(data)) return;
         const wasClean = !isDirty();
         remoteData = data;
         if (wasClean) localData = deepCopy(data);
         saveStored(LS_REMOTE, remoteData);
         saveStored(LS_LOCAL, localData);
         renderAll();
+        renderAdmin();
       } catch (e) { /* offline — keep local/default data */ }
     }
 
@@ -973,6 +1015,7 @@
         sel.appendChild(o);
       });
       sel.value = prev;
+      if (sel.value !== prev) sel.value = "";
     }
 
     function autoFillTimesIfBlank(){
