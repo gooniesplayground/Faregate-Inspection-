@@ -236,23 +236,6 @@
           <label for="technician">Tech</label>
           <select id="technician">
             <option value="">Select</option>
-            <option>Asanti H (60572)</option>
-            <option>Andy Y (59116)</option>
-            <option>Charles L (59244)</option>
-            <option>Edward H</option>
-            <option>Eric P (62789)</option>
-            <option>Francisco L (62763)</option>
-            <option>Jimmy Z (59149)</option>
-            <option>Jose J (60623)</option>
-            <option>Joshua A (62726)</option>
-            <option>Juan H (61629)</option>
-            <option>Julio M (62727)</option>
-            <option>Keith F (62790)</option>
-            <option>Mason M (00000)</option>
-            <option>Rafael T (61287)</option>
-            <option>Revic C (58631)</option>
-            <option>Roger D (60620)</option>
-            <option>Sal A (00000)</option>
           </select>
         </div>
 
@@ -265,32 +248,6 @@
           <label for="station">Station</label>
           <select id="station">
             <option value="">Select</option>
-            <option value="120">🔴 North Hollywood</option>
-            <option value="131">🔴 Hollywood/Western</option>
-            <option value="129">🔴 Vermont/Santa Monica</option>
-            <option value="125">🔴 Wilshire/Vermont</option>
-            <option value="104">🔴 Westlake/MacArthur Park</option>
-            <option value="124">🔴 7th Street/Metro Center</option>
-            <option value="123">🔴 Pershing Square</option>
-            <option value="122">🔴 Civic Center</option>
-            <option value="126">🟣 Wilshire/Normandie</option>
-            <option value="127">🟣 Wilshire/Western</option>
-            <option value="2986">🟣 Wilshire/La Brea</option>
-            <option value="2987">🟣 Wilshire/Fairfax</option>
-            <option value="2988">🟣 Wilshire/La Cienega</option>
-            <option value="2978">🔵 Pomona</option>
-            <option value="2977">🔵 La Verne</option>
-            <option value="2976">🔵 San Dimas</option>
-            <option value="2975">🔵 Glendora</option>
-            <option value="73">🔵 Sierra Madre Villa</option>
-            <option value="168">🔵 Allen</option>
-            <option value="167">🔵 Lake</option>
-            <option value="144">🟢 Firestone</option>
-            <option value="145">🟢 Willowbrook - Rosa Parks</option>
-            <option value="2941">🟢 LAX/MTC</option>
-            <option value="174">🟢 Aviation/Imperial</option>
-            <option value="171">🟢 Douglas</option>
-            <option value="60">🟢 Norwalk</option>
           </select>
         </div>
 
@@ -354,34 +311,116 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const arrayData = {
-      "124": ["Figueroa 49-57", "Hope 59-67", "Flower 69-71"],
-      "125": ["Main", "Elevator"],
-      "126": ["Main"],
-      "127": ["Main"],
-      "129": ["North 104-107", "South 110-112"],
-      "131": ["Main"],
-      "144": ["North 605-606", "South 608-609"],
-      "145": ["West 340-347", "Center 333-337+460", "Transfer Mezzanine", "East 353+458/9", "South 450-452"],
-      "167": ["Main"],
-      "168": ["North East"],
-      "171": ["North 436-438", "South 440-530"],
-      "174": ["East 411-413", "West 415-417", "Center472-538"],
-      "60":  ["East 300-305", "West 307-534"],
-      "73":  ["Main"],
-      "104": ["South"],
-      "120": ["West 154-158", "East 161-166"],
-      "122": ["North 26-32", "South 911-913"],
-      "123": ["South 35-41", "North 43-47"],
-      "2975": ["West 462-462", "East 466-467"],
-      "2976": ["West"],
-      "2977": ["West 478-479", "East 482-483"],
-      "2978": ["West 486-490", "EastWest 493-494", "EastEast 498-497"],
-      "2986": ["Main"],
-      "2987": ["Main"],
-      "2988": ["Main"],
-      "2941": ["South 206-211", "North 213-218"]
+    const DEFAULT_DATA = {
+      "techs": [
+        "Asanti H (60572)",
+        "Andy Y (59116)",
+        "Charles L (59244)",
+        "Edward H",
+        "Eric P (62789)",
+        "Francisco L (62763)",
+        "Jimmy Z (59149)",
+        "Jose J (60623)",
+        "Joshua A (62726)",
+        "Juan H (61629)",
+        "Julio M (62727)",
+        "Keith F (62790)",
+        "Mason M (00000)",
+        "Rafael T (61287)",
+        "Revic C (58631)",
+        "Roger D (60620)",
+        "Sal A (00000)"
+      ],
+      "stations": [
+        { "id": "120", "line": "🔴", "name": "North Hollywood", "arrays": ["West 154-158", "East 161-166"] },
+        { "id": "131", "line": "🔴", "name": "Hollywood/Western", "arrays": ["Main"] },
+        { "id": "129", "line": "🔴", "name": "Vermont/Santa Monica", "arrays": ["North 104-107", "South 110-112"] },
+        { "id": "125", "line": "🔴", "name": "Wilshire/Vermont", "arrays": ["Main", "Elevator"] },
+        { "id": "104", "line": "🔴", "name": "Westlake/MacArthur Park", "arrays": ["South"] },
+        { "id": "124", "line": "🔴", "name": "7th Street/Metro Center", "arrays": ["Figueroa 49-57", "Hope 59-67", "Flower 69-71"] },
+        { "id": "123", "line": "🔴", "name": "Pershing Square", "arrays": ["South 35-41", "North 43-47"] },
+        { "id": "122", "line": "🔴", "name": "Civic Center", "arrays": ["North 26-32", "South 911-913"] },
+        { "id": "126", "line": "🟣", "name": "Wilshire/Normandie", "arrays": ["Main"] },
+        { "id": "127", "line": "🟣", "name": "Wilshire/Western", "arrays": ["Main"] },
+        { "id": "2986", "line": "🟣", "name": "Wilshire/La Brea", "arrays": ["Main"] },
+        { "id": "2987", "line": "🟣", "name": "Wilshire/Fairfax", "arrays": ["Main"] },
+        { "id": "2988", "line": "🟣", "name": "Wilshire/La Cienega", "arrays": ["Main"] },
+        { "id": "2978", "line": "🔵", "name": "Pomona", "arrays": ["West 486-490", "EastWest 493-494", "EastEast 498-497"] },
+        { "id": "2977", "line": "🔵", "name": "La Verne", "arrays": ["West 478-479", "East 482-483"] },
+        { "id": "2976", "line": "🔵", "name": "San Dimas", "arrays": ["West"] },
+        { "id": "2975", "line": "🔵", "name": "Glendora", "arrays": ["West 462-462", "East 466-467"] },
+        { "id": "73", "line": "🔵", "name": "Sierra Madre Villa", "arrays": ["Main"] },
+        { "id": "168", "line": "🔵", "name": "Allen", "arrays": ["North East"] },
+        { "id": "167", "line": "🔵", "name": "Lake", "arrays": ["Main"] },
+        { "id": "144", "line": "🟢", "name": "Firestone", "arrays": ["North 605-606", "South 608-609"] },
+        { "id": "145", "line": "🟢", "name": "Willowbrook - Rosa Parks", "arrays": ["West 340-347", "Center 333-337+460", "Transfer Mezzanine", "East 353+458/9", "South 450-452"] },
+        { "id": "2941", "line": "🟢", "name": "LAX/MTC", "arrays": ["South 206-211", "North 213-218"] },
+        { "id": "174", "line": "🟢", "name": "Aviation/Imperial", "arrays": ["East 411-413", "West 415-417", "Center472-538"] },
+        { "id": "171", "line": "🟢", "name": "Douglas", "arrays": ["North 436-438", "South 440-530"] },
+        { "id": "60", "line": "🟢", "name": "Norwalk", "arrays": ["East 300-305", "West 307-534"] }
+      ]
     };
+
+    const LS_LOCAL  = "faregate.local";
+    const LS_REMOTE = "faregate.remote";
+    const LS_TOKEN  = "faregate.token";
+
+    function deepCopy(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function loadStored(key){
+      try { return JSON.parse(localStorage.getItem(key)); }
+      catch(e){ return null; }
+    }
+
+    function saveStored(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+    let localData  = loadStored(LS_LOCAL)  || deepCopy(DEFAULT_DATA);
+    let remoteData = loadStored(LS_REMOTE) || deepCopy(DEFAULT_DATA);
+
+    function isDirty(){ return JSON.stringify(localData) !== JSON.stringify(remoteData); }
+
+    function renderTechOptions(){
+      const sel = document.getElementById("technician");
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Select</option>';
+      localData.techs.forEach(t => {
+        const o = document.createElement("option");
+        o.textContent = t;
+        sel.appendChild(o);
+      });
+      sel.value = prev;
+    }
+
+    function renderStationOptions(){
+      const sel = document.getElementById("station");
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">Select</option>';
+      localData.stations.forEach(s => {
+        const o = document.createElement("option");
+        o.value = s.id;
+        o.textContent = `${s.line} ${s.name}`;
+        sel.appendChild(o);
+      });
+      sel.value = prev;
+      populateArrayOptions(sel.value);
+    }
+
+    function renderAll(){ renderTechOptions(); renderStationOptions(); }
+
+    async function fetchRemoteData(){
+      try {
+        const res = await fetch(`data.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data || !Array.isArray(data.techs) || !Array.isArray(data.stations)) return;
+        const wasClean = !isDirty();
+        remoteData = data;
+        if (wasClean) localData = deepCopy(data);
+        saveStored(LS_REMOTE, remoteData);
+        saveStored(LS_LOCAL, localData);
+        renderAll();
+      } catch (e) { /* offline — keep local/default data */ }
+    }
 
     function pad(n){ return String(n).padStart(2,"0"); }
 
@@ -416,12 +455,16 @@
 
     function populateArrayOptions(siteId){
       const sel = document.getElementById("array");
+      const prev = sel.value;
       sel.innerHTML = '<option value="">Select</option>';
-      (arrayData[siteId] || []).forEach(a => {
-        const opt = document.createElement("option");
-        opt.value = a; opt.textContent = a;
-        sel.appendChild(opt);
+      const st = localData.stations.find(s => s.id === siteId);
+      (st ? st.arrays : []).forEach(a => {
+        const o = document.createElement("option");
+        o.value = a;
+        o.textContent = a;
+        sel.appendChild(o);
       });
+      sel.value = prev;
     }
 
     function autoFillTimesIfBlank(){
@@ -587,18 +630,9 @@
       document.getElementById("timeFinished").value = "";
       document.getElementById("notes").value = "";
       document.querySelectorAll('.checklist input[type="checkbox"]').forEach(c => c.checked = false);
-      // Auto-expand notes textarea as user types
-    const notesEl = document.getElementById("notes");
-    notesEl.addEventListener("input", () => {
-      notesEl.style.height = "auto";
-      notesEl.style.height = notesEl.scrollHeight + "px";
-    });
-
-    setCurrentDate();
     });
 
     // Init
-    // Auto-expand notes textarea as user types
     const notesEl = document.getElementById("notes");
     notesEl.addEventListener("input", () => {
       notesEl.style.height = "auto";
@@ -606,6 +640,8 @@
     });
 
     setCurrentDate();
+    renderAll();
+    fetchRemoteData();
   </script>
 </body>
 </html>
