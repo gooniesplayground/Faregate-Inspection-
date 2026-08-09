@@ -645,6 +645,11 @@
       });
       detail.appendChild(arrList);
 
+      makeReorderable(arrList, (from, to) => {
+        moveItem(s.arrays, from, to);
+        markChanged();
+      });
+
       // Add array
       const addWrap = document.createElement("div");
       addWrap.className = "admin-add";
@@ -696,6 +701,73 @@
       renderAll();
       renderAdmin();
     }
+
+    function moveItem(arr, from, to){
+      const [m] = arr.splice(from, 1);
+      arr.splice(to, 0, m);
+    }
+
+    // Long-press (~400 ms) a row to lift it, drag to reorder, release to drop.
+    function makeReorderable(listEl, onReorder){
+      let pressTimer = null, dragging = null, startIndex = -1, startY = 0;
+
+      listEl.addEventListener("pointerdown", e => {
+        const row = e.target.closest(".admin-row");
+        if (!row || row.parentElement !== listEl) return;      // ignore rows of nested lists
+        if (!e.target.closest(".admin-row-head")) return;      // only the header lifts
+        if (e.target.closest("button, input, select")) return; // not from controls
+        startY = e.clientY;
+        pressTimer = setTimeout(() => {
+          dragging = row;
+          startIndex = [...listEl.children].indexOf(row);
+          row.classList.add("dragging");
+          if (navigator.vibrate) navigator.vibrate(30);
+        }, 400);
+      });
+
+      listEl.addEventListener("pointermove", e => {
+        if (!dragging){
+          if (Math.abs(e.clientY - startY) > 10) clearTimeout(pressTimer); // it's a scroll
+          return;
+        }
+        const others = [...listEl.children].filter(r => r !== dragging);
+        const after = others.find(r => {
+          const rect = r.getBoundingClientRect();
+          return e.clientY < rect.top + rect.height / 2;
+        });
+        if (after) listEl.insertBefore(dragging, after);
+        else listEl.appendChild(dragging);
+      });
+
+      // Block page scroll and the long-press context menu only while dragging
+      listEl.addEventListener("touchmove", e => { if (dragging) e.preventDefault(); }, { passive: false });
+      listEl.addEventListener("contextmenu", e => {
+        // keep long-press paste working inside text inputs
+        if (!e.target.closest("input, select, textarea")) e.preventDefault();
+      });
+
+      const finish = () => {
+        clearTimeout(pressTimer);
+        if (!dragging) return;
+        dragging.classList.remove("dragging");
+        const endIndex = [...listEl.children].indexOf(dragging);
+        const from = startIndex;
+        dragging = null;
+        if (endIndex !== from) onReorder(from, endIndex);
+      };
+      listEl.addEventListener("pointerup", finish);
+      listEl.addEventListener("pointercancel", finish);
+    }
+
+    makeReorderable(document.getElementById("techList"), (from, to) => {
+      moveItem(localData.techs, from, to);
+      markChanged();
+    });
+
+    makeReorderable(document.getElementById("stationList"), (from, to) => {
+      moveItem(localData.stations, from, to);
+      markChanged();
+    });
 
     function openAdmin(){
       document.getElementById("adminPanel").hidden = false;
