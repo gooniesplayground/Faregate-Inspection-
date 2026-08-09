@@ -19,31 +19,234 @@
     "Sal A (00000)"
   ],
   "stations": [
-    { "id": "120", "line": "🔴", "name": "North Hollywood", "arrays": ["West 154-158", "East 161-166"] },
-    { "id": "131", "line": "🔴", "name": "Hollywood/Western", "arrays": ["Main"] },
-    { "id": "129", "line": "🔴", "name": "Vermont/Santa Monica", "arrays": ["North 104-107", "South 110-112"] },
-    { "id": "125", "line": "🔴", "name": "Wilshire/Vermont", "arrays": ["Main", "Elevator"] },
-    { "id": "104", "line": "🔴", "name": "Westlake/MacArthur Park", "arrays": ["South"] },
-    { "id": "124", "line": "🔴", "name": "7th Street/Metro Center", "arrays": ["Figueroa 49-57", "Hope 59-67", "Flower 69-71"] },
-    { "id": "123", "line": "🔴", "name": "Pershing Square", "arrays": ["South 35-41", "North 43-47"] },
-    { "id": "122", "line": "🔴", "name": "Civic Center", "arrays": ["North 26-32", "South 911-913"] },
-    { "id": "126", "line": "🟣", "name": "Wilshire/Normandie", "arrays": ["Main"] },
-    { "id": "127", "line": "🟣", "name": "Wilshire/Western", "arrays": ["Main"] },
-    { "id": "2986", "line": "🟣", "name": "Wilshire/La Brea", "arrays": ["Main"] },
-    { "id": "2987", "line": "🟣", "name": "Wilshire/Fairfax", "arrays": ["Main"] },
-    { "id": "2988", "line": "🟣", "name": "Wilshire/La Cienega", "arrays": ["Main"] },
-    { "id": "2978", "line": "🔵", "name": "Pomona", "arrays": ["West 486-490", "EastWest 493-494", "EastEast 498-497"] },
-    { "id": "2977", "line": "🔵", "name": "La Verne", "arrays": ["West 478-479", "East 482-483"] },
-    { "id": "2976", "line": "🔵", "name": "San Dimas", "arrays": ["West"] },
-    { "id": "2975", "line": "🔵", "name": "Glendora", "arrays": ["West 462-462", "East 466-467"] },
-    { "id": "73", "line": "🔵", "name": "Sierra Madre Villa", "arrays": ["Main"] },
-    { "id": "168", "line": "🔵", "name": "Allen", "arrays": ["North East"] },
-    { "id": "167", "line": "🔵", "name": "Lake", "arrays": ["Main"] },
-    { "id": "144", "line": "🟢", "name": "Firestone", "arrays": ["North 605-606", "South 608-609"] },
-    { "id": "145", "line": "🟢", "name": "Willowbrook - Rosa Parks", "arrays": ["West 340-347", "Center 333-337+460", "Transfer Mezzanine", "East 353+458/9", "South 450-452"] },
-    { "id": "2941", "line": "🟢", "name": "LAX/MTC", "arrays": ["South 206-211", "North 213-218"] },
-    { "id": "174", "line": "🟢", "name": "Aviation/Imperial", "arrays": ["East 411-413", "West 415-417", "Center472-538"] },
-    { "id": "171", "line": "🟢", "name": "Douglas", "arrays": ["North 436-438", "South 440-530"] },
-    { "id": "60", "line": "🟢", "name": "Norwalk", "arrays": ["East 300-305", "West 307-534"] }
+    {
+      "id": "120",
+      "line": "🔴",
+      "name": "North Hollywood",
+      "arrays": [
+        "West 154-158",
+        "East 161-166"
+      ]
+    },
+    {
+      "id": "131",
+      "line": "🔴",
+      "name": "Hollywood/Western",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "129",
+      "line": "🔴",
+      "name": "Vermont/Santa Monica",
+      "arrays": [
+        "North 104-107",
+        "South 110-112"
+      ]
+    },
+    {
+      "id": "125",
+      "line": "🔴",
+      "name": "Wilshire/Vermont",
+      "arrays": [
+        "Main",
+        "Elevator"
+      ]
+    },
+    {
+      "id": "104",
+      "line": "🔴",
+      "name": "Westlake/MacArthur Park",
+      "arrays": [
+        "South"
+      ]
+    },
+    {
+      "id": "124",
+      "line": "🔴",
+      "name": "7th Street/Metro Center",
+      "arrays": [
+        "Figueroa 49-57",
+        "Hope 59-67",
+        "Flower 69-71"
+      ]
+    },
+    {
+      "id": "123",
+      "line": "🔴",
+      "name": "Pershing Square",
+      "arrays": [
+        "South 35-41",
+        "North 43-47"
+      ]
+    },
+    {
+      "id": "122",
+      "line": "🔴",
+      "name": "Civic Center",
+      "arrays": [
+        "North 26-32",
+        "South 911-913"
+      ]
+    },
+    {
+      "id": "126",
+      "line": "🟣",
+      "name": "Wilshire/Normandie",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "127",
+      "line": "🟣",
+      "name": "Wilshire/Western",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "2986",
+      "line": "🟣",
+      "name": "Wilshire/La Brea",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "2987",
+      "line": "🟣",
+      "name": "Wilshire/Fairfax",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "2988",
+      "line": "🟣",
+      "name": "Wilshire/La Cienega",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "2978",
+      "line": "🔵",
+      "name": "Pomona",
+      "arrays": [
+        "West 486-490",
+        "EastWest 493-494",
+        "EastEast 498-497"
+      ]
+    },
+    {
+      "id": "2977",
+      "line": "🔵",
+      "name": "La Verne",
+      "arrays": [
+        "West 478-479",
+        "East 482-483"
+      ]
+    },
+    {
+      "id": "2976",
+      "line": "🔵",
+      "name": "San Dimas",
+      "arrays": [
+        "West"
+      ]
+    },
+    {
+      "id": "2975",
+      "line": "🔵",
+      "name": "Glendora",
+      "arrays": [
+        "West 462-462",
+        "East 466-467"
+      ]
+    },
+    {
+      "id": "73",
+      "line": "🔵",
+      "name": "Sierra Madre Villa",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "168",
+      "line": "🔵",
+      "name": "Allen",
+      "arrays": [
+        "North East"
+      ]
+    },
+    {
+      "id": "167",
+      "line": "🔵",
+      "name": "Lake",
+      "arrays": [
+        "Main"
+      ]
+    },
+    {
+      "id": "144",
+      "line": "🟢",
+      "name": "Firestone",
+      "arrays": [
+        "North 605-606",
+        "South 608-609"
+      ]
+    },
+    {
+      "id": "145",
+      "line": "🟢",
+      "name": "Willowbrook - Rosa Parks",
+      "arrays": [
+        "West 340-347",
+        "Center 333-337+460",
+        "Transfer Mezzanine",
+        "East 353+458/9",
+        "South 450-452"
+      ]
+    },
+    {
+      "id": "2941",
+      "line": "🟢",
+      "name": "LAX/MTC",
+      "arrays": [
+        "South 206-211",
+        "North 213-218"
+      ]
+    },
+    {
+      "id": "174",
+      "line": "🟢",
+      "name": "Aviation/Imperial",
+      "arrays": [
+        "East 411-413",
+        "West 415-417",
+        "Center472-538"
+      ]
+    },
+    {
+      "id": "171",
+      "line": "🟢",
+      "name": "Douglas",
+      "arrays": [
+        "North 436-438",
+        "South 440-530"
+      ]
+    },
+    {
+      "id": "60",
+      "line": "🟢",
+      "name": "Norwalk",
+      "arrays": [
+        "East 300-305",
+        "West 307-534"
+      ]
+    }
   ]
 }
