@@ -469,6 +469,8 @@
     const LS_LOCAL  = "faregate.local";
     const LS_REMOTE = "faregate.remote";
     const LS_TOKEN  = "faregate.token";
+    const LS_DRAFT  = "faregate.draft";
+    const DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
     function deepCopy(obj){ return JSON.parse(JSON.stringify(obj)); }
 
@@ -530,16 +532,64 @@
 
     function renderChecklist(){
       const box = document.querySelector(".checklist");
+      const checkedLabels = new Set(
+        [...box.querySelectorAll('input[type="checkbox"]:checked')]
+          .map(c => c.nextElementSibling.textContent)
+      );
       box.innerHTML = "";
       localData.checklist.forEach(item => {
         const label = document.createElement("label");
         label.className = "check-item";
         const cb = document.createElement("input");
         cb.type = "checkbox";
+        cb.checked = checkedLabels.has(item);
         const span = document.createElement("span");
         span.textContent = item;
         label.append(cb, " ", span);
         box.appendChild(label);
+      });
+    }
+
+    function saveDraft(){
+      saveStored(LS_DRAFT, {
+        t: Date.now(),
+        tech: document.getElementById("technician").value,
+        date: document.getElementById("date").value,
+        station: document.getElementById("station").value,
+        array: document.getElementById("array").value,
+        start: document.getElementById("timeStarted").value,
+        end: document.getElementById("timeFinished").value,
+        notes: document.getElementById("notes").value,
+        checked: [...document.querySelectorAll('.checklist input[type="checkbox"]:checked')]
+          .map(c => c.nextElementSibling.textContent)
+      });
+    }
+
+    function restoreDraft(){
+      const d = loadStored(LS_DRAFT);
+      if (!d || typeof d.t !== "number" || Date.now() - d.t > DRAFT_MAX_AGE_MS){
+        localStorage.removeItem(LS_DRAFT);
+        return;
+      }
+      const setSel = (id, val) => {
+        const sel = document.getElementById(id);
+        sel.value = val || "";
+        if (sel.value !== (val || "")) sel.value = "";
+      };
+      setSel("technician", d.tech);
+      if (d.date) document.getElementById("date").value = d.date;
+      setSel("station", d.station);
+      populateArrayOptions(document.getElementById("station").value);
+      setSel("array", d.array);
+      document.getElementById("timeStarted").value = d.start || "";
+      document.getElementById("timeFinished").value = d.end || "";
+      const notes = document.getElementById("notes");
+      notes.value = d.notes || "";
+      notes.style.height = "auto";
+      notes.style.height = notes.scrollHeight + "px";
+      const want = new Set(d.checked || []);
+      document.querySelectorAll('.checklist input[type="checkbox"]').forEach(c => {
+        c.checked = want.has(c.nextElementSibling.textContent);
       });
     }
 
@@ -1205,6 +1255,7 @@
       const boxes = document.querySelectorAll('.checklist input[type="checkbox"]');
       const allChecked = [...boxes].every(c => c.checked);
       boxes.forEach(c => c.checked = !allChecked);
+      saveDraft();
     });
 
     // Now buttons
@@ -1336,6 +1387,7 @@
       document.getElementById("timeFinished").value = "";
       document.getElementById("notes").value = "";
       document.querySelectorAll('.checklist input[type="checkbox"]').forEach(c => c.checked = false);
+      saveDraft();
     });
 
     // Init
@@ -1345,8 +1397,12 @@
       notesEl.style.height = notesEl.scrollHeight + "px";
     });
 
+    document.getElementById("inspectionForm").addEventListener("input", saveDraft);
+    document.getElementById("inspectionForm").addEventListener("change", saveDraft);
+
     setCurrentDate();
     renderAll();
+    restoreDraft();
     fetchRemoteData();
   </script>
 </body>
