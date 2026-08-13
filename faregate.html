@@ -384,15 +384,6 @@
           Apply, then Publish. Leave empty for the normal camera.
         </p>
         <div class="admin-add">
-          <input id="chatEmailInput" placeholder="Work Gmail for chat (this device)" autocomplete="off" />
-          <button type="button" class="btn btn-primary" id="chatEmailSave">Save</button>
-        </div>
-        <p style="font-size:11px;margin:4px 0 8px;color:#64748b">
-          This device only: the Gmail account "Open Google Chat" should use,
-          so Google skips its account picker. Leave empty to be asked on the
-          next tap.
-        </p>
-        <div class="admin-add">
           <input id="webhookInput" placeholder="Google Chat webhook URL (optional)" autocomplete="off" />
           <button type="button" class="btn btn-primary" id="webhookApply">Apply</button>
         </div>
@@ -489,7 +480,6 @@
     const LS_REMOTE = "faregate.remote";
     const LS_TOKEN  = "faregate.token";
     const LS_DRAFT  = "faregate.draft";
-    const LS_CHAT_EMAIL = "faregate.chatEmail";
     const DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
     function deepCopy(obj){ return JSON.parse(JSON.stringify(obj)); }
@@ -624,26 +614,7 @@
     }
 
     function openChatLink(){
-      let email = (localStorage.getItem(LS_CHAT_EMAIL) || "").trim();
-      if (!email){
-        const v = prompt("Enter your work Gmail once to skip Google's account picker (Cancel to skip):");
-        if (v && v.trim()){
-          if (v.trim().includes("@")){
-            email = v.trim();
-            localStorage.setItem(LS_CHAT_EMAIL, email);
-          } else {
-            showToast("❌ That doesn't look like an email");
-          }
-        }
-      }
-      let url = localData.chatSpaceLink;
-      if (email){
-        // Pre-answer Google's account chooser: redirects ignore a plain
-        // authuser hint, but AccountChooser?Email=...&continue=... does not.
-        url = "https://accounts.google.com/AccountChooser?Email=" +
-              encodeURIComponent(email) + "&continue=" + encodeURIComponent(url);
-      }
-      window.open(url, "_blank");
+      window.open(localData.chatSpaceLink, "_blank");
     }
 
     function renderAll(){ renderTechOptions(); renderStationOptions(); renderChecklist(); updateActionButtons(); }
@@ -896,7 +867,6 @@
       renderChecklistAdmin();
       document.getElementById("webhookInput").value = localData.chatWebhook || "";
       document.getElementById("spaceLinkInput").value = localData.chatSpaceLink || "";
-      document.getElementById("chatEmailInput").value = localStorage.getItem(LS_CHAT_EMAIL) || "";
       updateAdminChrome();
     }
 
@@ -1111,21 +1081,6 @@
       localData.chatSpaceLink = v;
       markChanged();
       showToast(v ? "💬 Camera opens chat — Publish to roll out" : "Camera back to normal — Publish to roll out");
-    });
-
-    document.getElementById("chatEmailSave").addEventListener("click", () => {
-      const v = document.getElementById("chatEmailInput").value.trim();
-      if (!v){
-        localStorage.removeItem(LS_CHAT_EMAIL);
-        showToast("Chat account cleared for this device");
-        return;
-      }
-      if (!v.includes("@")){
-        showToast("❌ That doesn't look like an email");
-        return;
-      }
-      localStorage.setItem(LS_CHAT_EMAIL, v);
-      showToast("💬 Chat opens as " + v);
     });
 
     document.getElementById("tokenSave").addEventListener("click", () => {

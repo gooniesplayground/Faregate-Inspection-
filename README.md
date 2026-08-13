@@ -123,21 +123,9 @@ space name → **Copy link to this space** (on some versions it's in the
 ⋮ menu). Paste it into admin **Settings → Google Chat space link** →
 **Apply** → **Publish**.
 
-The first time a tech taps **Open Google Chat**, the app asks once for
-their work Gmail and remembers it on that phone, so Google's
-account-picker screen stops appearing. (Changeable later under admin
-Settings → "Work Gmail for chat".)
-
-**Still seeing an account picker every time?** That happens on phones
-with more than one Google account when the link opens the Google Chat
-*app* — the app asks which account, and websites can't answer for it.
-One-time fix, either one works:
-
-- Open the Google Chat app → profile picture → switch it to the work
-  account and leave it there; **or**
-- Phone Settings → **Apps → Google Chat → Open by default → turn off
-  "Open supported links"**. The chat then opens in the browser, where
-  the remembered work Gmail skips the picker automatically.
+Note: on phones signed into more than one Google account, Google may
+show its account picker when the chat opens — tapping the work account
+is all that's needed. Phones with only a work account go straight in.
 
 To turn it off: clear the field, **Apply**, **Publish**. If strangers ever
 spam the space, delete the webhook in Google Chat, add a fresh one, and
