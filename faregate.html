@@ -1260,7 +1260,7 @@
 
     // Now buttons
     document.querySelectorAll("[data-target]").forEach(btn => {
-      btn.addEventListener("click", () => setCurrentTime(btn.dataset.target));
+      btn.addEventListener("click", () => { setCurrentTime(btn.dataset.target); saveDraft(); });
     });
 
 
