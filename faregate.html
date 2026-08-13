@@ -1248,10 +1248,7 @@
       this.value = "";
     });
 
-    // Save button — screenshot the card and download as image
-    document.getElementById("saveBtn").addEventListener("click", () => {
-      autoFillTimesIfBlank();
-
+    function saveScreenshotToPhone(){
       const stEl    = document.getElementById("station");
       const station = stEl.options[stEl.selectedIndex]?.text.replace(/[^a-zA-Z0-9]/g,"_").replace(/^_+|_+$/g,"") || "station";
       const end     = document.getElementById("timeFinished").value.replace(":","") || "0000";
@@ -1302,11 +1299,7 @@
             a.download = fileName;
             a.click();
             URL.revokeObjectURL(url);
-            sendSummaryToChat().then(chat => {
-              if (chat === "sent") showToast("✅ Saved + sent to chat!");
-              else if (chat === "failed") showToast("⚠️ Saved. Chat send failed — send manually");
-              else showToast("✅ Saved to Downloads!");
-            });
+            showToast("✅ Saved to Downloads!");
           }, "image/png");
         }).catch(() => {
           actions.style.display = "";
@@ -1315,6 +1308,25 @@
           showToast("❌ Save failed. Try screenshot.");
         });
       }, 150);
+    }
+
+    // Save button — chat-only when a webhook is configured, phone-only otherwise
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      autoFillTimesIfBlank();
+
+      if (localData.chatWebhook){
+        showToast("📤 Sending to chat...");
+        sendSummaryToChat().then(chat => {
+          if (chat === "sent"){
+            showToast("✅ Sent to chat!");
+          } else {
+            showToast("⚠️ Chat send failed — saving to phone instead");
+            saveScreenshotToPhone();
+          }
+        });
+      } else {
+        saveScreenshotToPhone();
+      }
     });
 
     // Clear button — keeps Tech, Station, and Date
