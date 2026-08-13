@@ -90,6 +90,27 @@ delete (revoke) the token.
 **You're done.** Give the techs the link from Step 4, and manage the lists
 from your phone whenever things change.
 
+### Optional: send inspections to a Google Chat space
+
+With this on, every **Save** also posts the inspection (as text) into a
+Google Chat space of your choice — automatically, no extra taps for techs.
+
+1. In Google Chat, open the space. Click the **space name** at the top →
+   **Apps & integrations** (on some accounts: **Manage webhooks**).
+2. Under **Webhooks**, click **Add webhook**, name it (e.g. `Faregate`),
+   and click **Save**. Copy the URL it shows.
+   *(No Webhooks section? The space is on a personal Google account or
+   your Workspace admin has disabled webhooks — this feature needs a
+   Workspace space with webhooks allowed.)*
+3. In the app: tap the title 5 times → **Settings** → paste the URL into
+   the **Google Chat webhook URL** field → **Apply** → **Publish**.
+4. Within a minute, every tech's Save button also sends to the chat. Do
+   one test Save to confirm.
+
+To turn it off: clear the field, **Apply**, **Publish**. If strangers ever
+spam the space, delete the webhook in Google Chat, add a fresh one, and
+repeat these steps.
+
 ---
 
 ## Good to know
