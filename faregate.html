@@ -638,7 +638,10 @@
       }
       let url = localData.chatSpaceLink;
       if (email){
-        url += (url.includes("?") ? "&" : "?") + "authuser=" + encodeURIComponent(email);
+        // Pre-answer Google's account chooser: redirects ignore a plain
+        // authuser hint, but AccountChooser?Email=...&continue=... does not.
+        url = "https://accounts.google.com/AccountChooser?Email=" +
+              encodeURIComponent(email) + "&continue=" + encodeURIComponent(url);
       }
       window.open(url, "_blank");
     }
