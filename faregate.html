@@ -375,6 +375,15 @@
       <section>
         <h3>Settings</h3>
         <div class="admin-add">
+          <input id="spaceLinkInput" placeholder="Google Chat space link (optional)" autocomplete="off" />
+          <button type="button" class="btn btn-primary" id="spaceLinkApply">Apply</button>
+        </div>
+        <p style="font-size:11px;margin:4px 0 8px;color:#64748b">
+          The camera button opens this chat space so techs can post photos
+          with Chat's own camera. In Google Chat: space menu → Copy link.
+          Apply, then Publish. Leave empty for the normal camera.
+        </p>
+        <div class="admin-add">
           <input id="webhookInput" placeholder="Google Chat webhook URL (optional)" autocomplete="off" />
           <button type="button" class="btn btn-primary" id="webhookApply">Apply</button>
         </div>
@@ -423,6 +432,7 @@
         "Sal A (00000)"
       ],
       "chatWebhook": "",
+      "chatSpaceLink": "",
       "checklist": [
         "Login Completed",
         "TAPs",
@@ -489,6 +499,9 @@
       }
       if (typeof d.chatWebhook !== "string"){
         d.chatWebhook = "";
+      }
+      if (typeof d.chatSpaceLink !== "string"){
+        d.chatSpaceLink = "";
       }
       return d;
     }
@@ -593,7 +606,14 @@
       });
     }
 
-    function renderAll(){ renderTechOptions(); renderStationOptions(); renderChecklist(); }
+    function updateActionButtons(){
+      document.getElementById("saveBtn").textContent =
+        localData.chatWebhook ? "Submit to Google Chat" : "Save";
+      document.getElementById("cameraBtn").textContent =
+        localData.chatSpaceLink ? "Open Google Chat" : "📷 Camera";
+    }
+
+    function renderAll(){ renderTechOptions(); renderStationOptions(); renderChecklist(); updateActionButtons(); }
 
     // ----- Admin mode -----
     function renderTechAdmin(){
@@ -842,6 +862,7 @@
       renderStationAdmin();
       renderChecklistAdmin();
       document.getElementById("webhookInput").value = localData.chatWebhook || "";
+      document.getElementById("spaceLinkInput").value = localData.chatSpaceLink || "";
       updateAdminChrome();
     }
 
@@ -1045,6 +1066,17 @@
       localData.chatWebhook = v;
       markChanged();
       showToast(v ? "💬 Chat sending on — Publish to roll out" : "Chat sending off — Publish to roll out");
+    });
+
+    document.getElementById("spaceLinkApply").addEventListener("click", () => {
+      const v = document.getElementById("spaceLinkInput").value.trim();
+      if (v && !v.startsWith("https://chat.google.com/")){
+        showToast("❌ Not a Google Chat link");
+        return;
+      }
+      localData.chatSpaceLink = v;
+      markChanged();
+      showToast(v ? "💬 Camera opens chat — Publish to roll out" : "Camera back to normal — Publish to roll out");
     });
 
     document.getElementById("tokenSave").addEventListener("click", () => {
@@ -1272,6 +1304,10 @@
 
     // Camera button — open camera and auto-save photo to Downloads/Gallery
     document.getElementById("cameraBtn").addEventListener("click", () => {
+      if (localData.chatSpaceLink){
+        window.open(localData.chatSpaceLink, "_blank");
+        return;
+      }
       document.getElementById("cameraInput").click();
     });
 
