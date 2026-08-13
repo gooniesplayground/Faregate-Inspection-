@@ -123,6 +123,12 @@ space name → **Copy link to this space** (on some versions it's in the
 ⋮ menu). Paste it into admin **Settings → Google Chat space link** →
 **Apply** → **Publish**.
 
+The first time a tech taps **Open Google Chat**, the app asks once for
+their work Gmail and remembers it on that phone, so Google's
+account-picker screen stops appearing. (Changeable later under admin
+Settings → "Work Gmail for chat". If the phone opens links in the Google
+Chat *app* rather than the browser, Google decides the account itself.)
+
 To turn it off: clear the field, **Apply**, **Publish**. If strangers ever
 spam the space, delete the webhook in Google Chat, add a fresh one, and
 repeat these steps.
