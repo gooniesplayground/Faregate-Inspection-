@@ -90,13 +90,21 @@ delete (revoke) the token.
 **You're done.** Give the techs the link from Step 4, and manage the lists
 from your phone whenever things change.
 
-### Optional: send inspections to a Google Chat space
+### Optional: connect the app to Google Chat
 
-With this on, **Save** posts the inspection (as text) into a Google Chat
-space of your choice instead of saving a picture to the phone —
-automatically, no extra taps for techs. (If the send fails — e.g. no
-signal — the app saves the picture to the phone as a backup. With this
-off, Save just saves the picture like normal.)
+Two separate hookups, each optional:
+
+- **Webhook URL** — every **Save** posts the inspection (as text) into
+  the space automatically instead of saving a picture to the phone; the
+  button label changes to **"Submit to Google Chat"**. (If the send fails
+  — e.g. no signal — the app saves the picture to the phone as a backup.
+  Without a webhook, Save just saves the picture like normal.)
+- **Space link** — the camera button becomes **"Open Google Chat"** and
+  jumps straight into the space, where techs use Chat's own camera to
+  post photos. (Without it, the button opens the phone camera and saves
+  the photo to the phone like normal.)
+
+Setting up the webhook:
 
 1. In Google Chat, open the space. Click the **space name** at the top →
    **Apps & integrations** (on some accounts: **Manage webhooks**).
@@ -109,6 +117,11 @@ off, Save just saves the picture like normal.)
    the **Google Chat webhook URL** field → **Apply** → **Publish**.
 4. Within a minute, every tech's Save button sends to the chat. Do one
    test Save to confirm.
+
+Setting up the space link: in Google Chat, open the space → click the
+space name → **Copy link to this space** (on some versions it's in the
+⋮ menu). Paste it into admin **Settings → Google Chat space link** →
+**Apply** → **Publish**.
 
 To turn it off: clear the field, **Apply**, **Publish**. If strangers ever
 spam the space, delete the webhook in Google Chat, add a fresh one, and
