@@ -375,6 +375,14 @@
       <section>
         <h3>Settings</h3>
         <div class="admin-add">
+          <input id="webhookInput" placeholder="Google Chat webhook URL (optional)" autocomplete="off" />
+          <button type="button" class="btn btn-primary" id="webhookApply">Apply</button>
+        </div>
+        <p style="font-size:11px;margin:4px 0 8px;color:#64748b">
+          Save sends each inspection to this chat. Paste the space's webhook
+          URL, tap Apply, then Publish. Leave empty to turn off.
+        </p>
+        <div class="admin-add">
           <input id="tokenInput" type="password" placeholder="GitHub token" autocomplete="off" />
           <button type="button" class="btn btn-primary" id="tokenSave">Save</button>
         </div>
@@ -414,6 +422,7 @@
         "Roger D (60620)",
         "Sal A (00000)"
       ],
+      "chatWebhook": "",
       "checklist": [
         "Login Completed",
         "TAPs",
@@ -475,6 +484,9 @@
     function normalizeData(d){
       if (!Array.isArray(d.checklist) || d.checklist.length === 0){
         d.checklist = deepCopy(DEFAULT_DATA.checklist);
+      }
+      if (typeof d.chatWebhook !== "string"){
+        d.chatWebhook = "";
       }
       return d;
     }
@@ -779,6 +791,7 @@
       renderTechAdmin();
       renderStationAdmin();
       renderChecklistAdmin();
+      document.getElementById("webhookInput").value = localData.chatWebhook || "";
       updateAdminChrome();
     }
 
@@ -973,6 +986,17 @@
       }
     }
 
+    document.getElementById("webhookApply").addEventListener("click", () => {
+      const v = document.getElementById("webhookInput").value.trim();
+      if (v && !v.startsWith("https://chat.googleapis.com/v1/spaces/")){
+        showToast("❌ Not a Google Chat webhook URL");
+        return;
+      }
+      localData.chatWebhook = v;
+      markChanged();
+      showToast(v ? "💬 Chat sending on — Publish to roll out" : "Chat sending off — Publish to roll out");
+    });
+
     document.getElementById("tokenSave").addEventListener("click", () => {
       const input = document.getElementById("tokenInput");
       const v = input.value.trim();
@@ -1162,6 +1186,20 @@
       return txt;
     }
 
+    async function sendSummaryToChat(){
+      if (!localData.chatWebhook) return "off";
+      try {
+        const res = await fetch(localData.chatWebhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=UTF-8" },
+          body: JSON.stringify({ text: buildSummary() })
+        });
+        return res.ok ? "sent" : "failed";
+      } catch (e) {
+        return "failed";
+      }
+    }
+
     // Select-all checklist toggle
     document.getElementById("checklistTitle").addEventListener("click", () => {
       const boxes = document.querySelectorAll('.checklist input[type="checkbox"]');
@@ -1264,7 +1302,11 @@
             a.download = fileName;
             a.click();
             URL.revokeObjectURL(url);
-            showToast("✅ Saved to Downloads!");
+            sendSummaryToChat().then(chat => {
+              if (chat === "sent") showToast("✅ Saved + sent to chat!");
+              else if (chat === "failed") showToast("⚠️ Saved. Chat send failed — send manually");
+              else showToast("✅ Saved to Downloads!");
+            });
           }, "image/png");
         }).catch(() => {
           actions.style.display = "";
